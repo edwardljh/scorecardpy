@@ -939,7 +939,15 @@ def woebin(dt, y, x=None, breaks_list=None, special_values=None,
     if save_breaks_list is not None:
         bins_to_breaks(bins, dt, to_string=True, save_string=save_breaks_list)
     # return
-    return bins
+    if isinstance(bins, dict):
+        bins2 = pd.concat(bins, ignore_index=True)
+    # good bad distr
+    def gb_distr(binx):
+        binx['good_distr'] = binx['good']/sum(binx['count'])
+        binx['bad_distr'] = binx['bad']/sum(binx['count'])
+        return binx
+    binsx = bins2.groupby('variable').apply(gb_distr)
+    return bins,binsx[['variable','total_iv']].drop_duplicates()
 
 
 
